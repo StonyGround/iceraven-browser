@@ -115,7 +115,7 @@ import java.lang.ref.WeakReference
 import kotlin.math.min
 
 @Suppress("TooManyFunctions", "LargeClass")
-class HomeFragment : Fragment() {
+class HomeFragment2 : Fragment() {
     private val args by navArgs<HomeFragmentArgs>()
 
     @VisibleForTesting
@@ -123,7 +123,7 @@ class HomeFragment : Fragment() {
 
     @VisibleForTesting
     @Suppress("VariableNaming")
-    internal var _binding: FragmentHomeBinding? = null
+    internal var _binding: FragmentHome2Binding? = null
     private val binding get() = _binding!!
 
     private val homeViewModel: HomeScreenViewModel by activityViewModels()
@@ -189,7 +189,7 @@ class HomeFragment : Fragment() {
         // DO NOT ADD ANYTHING ABOVE THIS getProfilerTime CALL!
         val profilerStartTime = requireComponents.core.engine.profiler?.getProfilerTime()
 
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentHome2Binding.inflate(inflater, container, false)
         val activity = activity as HomeActivity
         val components = requireComponents
 
@@ -403,10 +403,6 @@ class HomeFragment : Fragment() {
 
         updateTabCounter(requireComponents.core.store.state)
 
-        binding.bgSearch.setOnClickListener {
-            navigateToSearch()
-        }
-
         if (bundleArgs.getBoolean(FOCUS_ON_ADDRESS_BAR)) {
             navigateToSearch()
         }
@@ -486,13 +482,13 @@ class HomeFragment : Fragment() {
 
         requireComponents.backgroundServices.accountManagerAvailableQueue.runIfReadyOrQueue {
             // By the time this code runs, we may not be attached to a context or have a view lifecycle owner.
-            if ((this@HomeFragment).view?.context == null) {
+            if ((this@HomeFragment2).view?.context == null) {
                 return@runIfReadyOrQueue
             }
 
             requireComponents.backgroundServices.accountManager.register(
                 currentMode,
-                owner = this@HomeFragment.viewLifecycleOwner,
+                owner = this@HomeFragment2.viewLifecycleOwner,
             )
             requireComponents.backgroundServices.accountManager.register(
                 object : AccountObserver {
@@ -511,7 +507,7 @@ class HomeFragment : Fragment() {
                         }
                     }
                 },
-                owner = this@HomeFragment.viewLifecycleOwner,
+                owner = this@HomeFragment2.viewLifecycleOwner,
             )
         }
 
@@ -580,7 +576,7 @@ class HomeFragment : Fragment() {
                 sessionId = null,
             )
 
-        nav(R.id.homeFragment, directions, getToolbarNavOptions(requireContext()))
+        nav(R.id.homeFragment2, directions, getToolbarNavOptions(requireContext()))
 
         Events.searchBarTapped.record(Events.SearchBarTappedExtra("HOME"))
     }

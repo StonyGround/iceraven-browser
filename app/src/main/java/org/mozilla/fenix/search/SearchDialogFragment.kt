@@ -105,7 +105,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
     private var _binding: FragmentSearchDialogBinding? = null
     private val binding get() = _binding!!
 
-    @VisibleForTesting internal lateinit var interactor: SearchDialogInteractor
+    @VisibleForTesting
+    internal lateinit var interactor: SearchDialogInteractor
     private lateinit var store: SearchDialogFragmentStore
     private lateinit var toolbarView: ToolbarView
     private lateinit var inlineAutocompleteEditText: InlineAutocompleteEditText
@@ -227,11 +228,13 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
             binding.toolbar,
             fromHomeFragment,
         ).also {
-            inlineAutocompleteEditText = it.view.findViewById(R.id.mozac_browser_toolbar_edit_url_view)
+            inlineAutocompleteEditText =
+                it.view.findViewById(R.id.mozac_browser_toolbar_edit_url_view)
         }
 
         if (requireContext().settings().shouldAutocompleteInAwesomebar) {
-            val engineForSpeculativeConnects = if (!isPrivate) requireComponents.core.engine else null
+            val engineForSpeculativeConnects =
+                if (!isPrivate) requireComponents.core.engine else null
 
             ToolbarAutocompleteFeature(
                 binding.toolbar,
@@ -277,12 +280,10 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 dialog?.window?.decorView?.setOnTouchListener { _, event ->
                     when (event?.action) {
                         MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                            isPrivateButtonClicked = isTouchingPrivateButton(event.x, event.y)
+                            isPrivateButtonClicked = isTouchingPrivateButton()
                         }
                         MotionEvent.ACTION_UP -> {
                             if (!isTouchingPrivateButton(
-                                    event.x,
-                                    event.y,
                                 ) && !isPrivateButtonClicked
                             ) {
                                 findNavController().popBackStack()
@@ -377,7 +378,9 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         binding.qrScanButton.increaseTapArea(TAP_INCREASE_DPS)
 
         binding.qrScanButton.setOnClickListener {
-            if (!requireContext().hasCamera()) { return@setOnClickListener }
+            if (!requireContext().hasCamera()) {
+                return@setOnClickListener
+            }
             view.hideKeyboard()
             toolbarView.view.clearFocus()
 
@@ -501,11 +504,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         }
     }
 
-    private fun isTouchingPrivateButton(x: Float, y: Float): Boolean {
-        val view = parentFragmentManager.primaryNavigationFragment?.view?.findViewInHierarchy {
-            it.id == R.id.privateBrowsingButton
-        } ?: return false
-        return view.getRectWithScreenLocation().contains(x.toInt(), y.toInt())
+    private fun isTouchingPrivateButton(): Boolean {
+        return false
     }
 
     private fun hideClipboardSection() {
@@ -524,8 +524,18 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
     }
 
     private fun observeShortcutsState() = consumeFlow(store) { flow ->
-        flow.ifAnyChanged { state -> arrayOf(state.areShortcutsAvailable, state.showSearchShortcuts) }
-            .collect { state -> updateSearchShortcutsIcon(state.areShortcutsAvailable, state.showSearchShortcuts) }
+        flow.ifAnyChanged { state ->
+            arrayOf(
+                state.areShortcutsAvailable,
+                state.showSearchShortcuts,
+            )
+        }
+            .collect { state ->
+                updateSearchShortcutsIcon(
+                    state.areShortcutsAvailable,
+                    state.showSearchShortcuts,
+                )
+            }
     }
 
     private fun observeAwesomeBarState() = consumeFlow(store) { flow ->
@@ -549,8 +559,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
     private fun observeClipboardState() = consumeFlow(store) { flow ->
         flow.map { state ->
             val shouldShowView = state.showClipboardSuggestions &&
-                state.query.isEmpty() &&
-                state.clipboardHasUrl && !state.showSearchShortcuts
+                    state.query.isEmpty() &&
+                    state.clipboardHasUrl && !state.showSearchShortcuts
             Pair(shouldShowView, state.clipboardHasUrl)
         }
             .ifChanged()
@@ -763,7 +773,12 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 clear(binding.searchSuggestionsHint.id, TOP)
                 clear(binding.searchSuggestionsHint.id, BOTTOM)
                 connect(binding.searchSuggestionsHint.id, TOP, PARENT_ID, TOP)
-                connect(binding.searchSuggestionsHint.id, BOTTOM, binding.searchHintBottomBarrier.id, TOP)
+                connect(
+                    binding.searchSuggestionsHint.id,
+                    BOTTOM,
+                    binding.searchHintBottomBarrier.id,
+                    TOP,
+                )
 
                 clear(binding.fillLinkFromClipboard.id, TOP)
                 connect(binding.fillLinkFromClipboard.id, BOTTOM, binding.pillWrapper.id, TOP)
@@ -779,8 +794,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
     private fun updateSearchSuggestionsHintVisibility(state: SearchFragmentState) {
         view?.apply {
             val showHint = state.showSearchSuggestionsHint &&
-                !state.showSearchShortcuts &&
-                state.url != state.query
+                    !state.showSearchShortcuts &&
+                    state.url != state.query
 
             binding.searchSuggestionsHint.isVisible = showHint
             binding.searchSuggestionsHintDivider.isVisible = showHint
@@ -829,7 +844,10 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 if (voiceSearchButtonAction == null) {
                     voiceSearchButtonAction = IncreasedTapAreaActionDecorator(
                         BrowserToolbar.Button(
-                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_microphone)!!,
+                            AppCompatResources.getDrawable(
+                                requireContext(),
+                                R.drawable.ic_microphone,
+                            )!!,
                             requireContext().getString(R.string.voice_search_content_description),
                             visible = { true },
                             listener = ::launchVoiceSearch,
@@ -858,12 +876,20 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         // the voice button will still be available and *will* cause a crash if tapped,
         // since the `visible` call is only checked on create. In order to avoid extra complexity
         // around such a small edge case, we make the button have no functionality in this case.
-        if (!isSpeechAvailable()) { return }
+        if (!isSpeechAvailable()) {
+            return
+        }
 
         VoiceSearch.tapped.record(NoExtras())
         speechIntent.apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_PROMPT, requireContext().getString(R.string.voice_search_explainer))
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+            )
+            putExtra(
+                RecognizerIntent.EXTRA_PROMPT,
+                requireContext().getString(R.string.voice_search_explainer),
+            )
         }
         startActivityForResult(speechIntent, VoiceSearchActivity.SPEECH_REQUEST_CODE)
     }
@@ -923,7 +949,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         requireContext().settings().setCameraPermissionNeededState = false
     }
 
-    private fun isSpeechAvailable(): Boolean = speechIntent.resolveActivity(requireContext().packageManager) != null
+    private fun isSpeechAvailable(): Boolean =
+        speechIntent.resolveActivity(requireContext().packageManager) != null
 
     private fun updateClipboardSuggestion(
         shouldShowView: Boolean,
@@ -955,7 +982,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
 
     private fun updateToolbarContentDescription(source: SearchEngineSource) {
         source.searchEngine?.let { engine ->
-            toolbarView.view.contentDescription = engine.name + ", " + inlineAutocompleteEditText.hint
+            toolbarView.view.contentDescription =
+                engine.name + ", " + inlineAutocompleteEditText.hint
         }
 
         inlineAutocompleteEditText.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -1004,7 +1032,11 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 ?: this::class.java.simpleName
 
             // Throw this entry away if it's the current top and ignore returning the base nav graph.
-            if (entry.destination !is NavGraph && !entry.destination.displayName.contains(currentClassName, true)) {
+            if (entry.destination !is NavGraph && !entry.destination.displayName.contains(
+                    currentClassName,
+                    true,
+                )
+            ) {
                 return entry
             }
         }

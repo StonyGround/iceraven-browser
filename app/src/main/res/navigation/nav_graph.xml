@@ -12,6 +12,11 @@
         app:popUpToInclusive="true" />
 
     <action
+        android:id="@+id/action_startup_home_2"
+        app:destination="@id/homeFragment2"
+        app:popUpToInclusive="true" />
+
+    <action
         android:id="@+id/action_global_home"
         app:destination="@id/homeFragment"
         app:popUpTo="@id/homeFragment"
@@ -195,6 +200,11 @@
             android:name="scrollToCollection"
             android:defaultValue="false"
             app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment2"
+        android:name="org.mozilla.fenix.home.HomeFragment2"
+        tools:layout="@layout/fragment_home_2">
     </fragment>
     <dialog
         android:id="@+id/homeOnboardingDialogFragment"
